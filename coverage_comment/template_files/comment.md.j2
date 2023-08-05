@@ -55,7 +55,7 @@ _None of the new lines are part of the tested code. Therefore, there is no cover
 {%- if diff_file_coverage.violation_lines -%}
 {% block single_file_missing_lines_wording scoped -%}
 {% set separator = joiner(", ") %}
-Missing lines: {% for line in diff_file_coverage.violation_lines_collapsed %}{{ separator() }}`{{ line[0] }}{{ '-' ~ line[1] if line[1] > line[0] }}`{% endfor %}
+Missing lines: {% for lines in diff_file_coverage.violation_lines_collapsed %}{{ separator() }}[`{{ lines[0] }}{{ "-" ~ lines[1] if lines[1] > lines[0] }}`]({{ filename | file_url(lines) }}){% endfor %}
 {%- endblock single_file_missing_lines_wording %}
 {%- endif %}
 {% endblock coverage_single_file -%}
