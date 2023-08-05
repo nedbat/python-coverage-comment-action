@@ -67,7 +67,7 @@ The branch rate is `50%`.
 
 ### [codebase/code.py](https://github.com/org/repo/pull/5/files#diff-c05d5557f0c1ff3761df2f49e3b541cfc161f4f0d63e2a66d568f090065bc3d3)
 `80%` of new lines are covered (`75%` of the complete file).
-Missing lines: `7`, `9`
+Missing lines: `3`, `7-9`, `12`
 
 </details>
 <!-- foo -->"""
@@ -140,7 +140,7 @@ def test_template_full():
             pathlib.Path("codebase/code.py"): coverage.FileDiffCoverage(
                 path=pathlib.Path("codebase/code.py"),
                 percent_covered=decimal.Decimal("0.5"),
-                violation_lines=[5],
+                violation_lines=[12, 13, 14, 22],
             ),
             pathlib.Path("codebase/other.py"): coverage.FileDiffCoverage(
                 path=pathlib.Path("codebase/other.py"),
@@ -170,7 +170,7 @@ The branch rate is `100%`.
 
 ### [codebase/code.py](https://github.com/org/repo/pull/12/files#diff-c05d5557f0c1ff3761df2f49e3b541cfc161f4f0d63e2a66d568f090065bc3d3)
 `50%` of new lines are covered (`83.33%` of the complete file).
-Missing lines: `5`
+Missing lines: `12-14`, `22`
 
 ### [codebase/other.py](https://github.com/org/repo/pull/12/files#diff-30cad827f61772ec66bb9ef8887058e6d8443a2afedb331d800feaa60228a26e)
 `100%` of new lines are covered (`100%` of the complete file).
@@ -232,7 +232,7 @@ The coverage rate is `75%`.
 
 ### [codebase/code.py](https://github.com/org/repo/pull/3/files#diff-c05d5557f0c1ff3761df2f49e3b541cfc161f4f0d63e2a66d568f090065bc3d3)
 `80%` of new lines are covered (`75%` of the complete file).
-Missing lines: `7`, `9`
+Missing lines: `3`, `7-9`, `12`
 
 </details>
 <!-- foo -->"""

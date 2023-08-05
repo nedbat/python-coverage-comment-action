@@ -1,11 +1,21 @@
 import dataclasses
 import datetime
 import decimal
+import functools
+import itertools
 import json
 import pathlib
 import tempfile
 
 from coverage_comment import log, subprocess
+
+
+def collapse_lines(lines: list[int]) -> list[tuple[int, int]]:
+    # All consecutive line numbers have the same difference between their list index and their value.
+    # Grouping by this difference therefore leads to buckets of consecutive numbers.
+    for _, it in itertools.groupby(enumerate(lines), lambda x: x[1] - x[0]):
+        t = list(it)
+        yield t[0][1], t[-1][1]
 
 
 @dataclasses.dataclass
@@ -50,6 +60,10 @@ class FileDiffCoverage:
     path: pathlib.Path
     percent_covered: decimal.Decimal
     violation_lines: list[int]
+
+    @functools.cached_property
+    def violation_lines_collapsed(self):
+        return list(collapse_lines(self.violation_lines))
 
 
 @dataclasses.dataclass

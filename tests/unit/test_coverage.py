@@ -7,6 +7,12 @@ import pytest
 from coverage_comment import coverage, subprocess
 
 
+def test_collapse_lines():
+    assert list(
+        coverage.collapse_lines([1, 2, 3, 5, 6, 8, 11, 12, 17, 18, 19, 20, 21, 99])
+    ) == [(1, 3), (5, 6), (8, 8), (11, 12), (17, 21), (99, 99)]
+
+
 @pytest.mark.parametrize(
     "num_covered, num_total, expected_coverage",
     [

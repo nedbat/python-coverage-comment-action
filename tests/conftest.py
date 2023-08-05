@@ -227,7 +227,7 @@ def diff_coverage_obj():
             pathlib.Path("codebase/code.py"): coverage_module.FileDiffCoverage(
                 path=pathlib.Path("codebase/code.py"),
                 percent_covered=decimal.Decimal("0.8"),
-                violation_lines=[7, 9],
+                violation_lines=[3, 7, 8, 9, 12],
             )
         },
     )
