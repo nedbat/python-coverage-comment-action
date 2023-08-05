@@ -14,6 +14,8 @@ def test_get_comment_markdown(coverage_obj, diff_coverage_obj):
             diff_coverage=diff_coverage_obj,
             previous_coverage_rate=decimal.Decimal("0.92"),
             marker="<!-- foo -->",
+            repo_name="org/repo",
+            pr_number=1,
             base_template="""
         {{ previous_coverage_rate | pct }}
         {{ coverage.info.percent_covered | pct }}
@@ -45,6 +47,8 @@ def test_template(coverage_obj, diff_coverage_obj):
         coverage=coverage_obj,
         diff_coverage=diff_coverage_obj,
         previous_coverage_rate=decimal.Decimal("0.92"),
+        repo_name="org/repo",
+        pr_number=5,
         base_template=template.read_template_file("comment.md.j2"),
         marker="<!-- foo -->",
         subproject_id="foo",
@@ -61,7 +65,7 @@ The branch rate is `50%`.
 <details>
 <summary>Diff Coverage details (click to unfold)</summary>
 
-### codebase/code.py
+### [codebase/code.py](https://github.com/org/repo/pull/5/files#diff-c05d5557f0c1ff3761df2f49e3b541cfc161f4f0d63e2a66d568f090065bc3d3)
 `80%` of new lines are covered (`75%` of the complete file).
 Missing lines: `7`, `9`
 
@@ -151,6 +155,8 @@ def test_template_full():
         diff_coverage=diff_cov,
         previous_coverage_rate=decimal.Decimal("1.0"),
         marker="<!-- foo -->",
+        repo_name="org/repo",
+        pr_number=12,
         base_template=template.read_template_file("comment.md.j2"),
     )
     expected = """## Coverage report
@@ -162,11 +168,11 @@ The branch rate is `100%`.
 <details>
 <summary>Diff Coverage details (click to unfold)</summary>
 
-### codebase/code.py
+### [codebase/code.py](https://github.com/org/repo/pull/12/files#diff-c05d5557f0c1ff3761df2f49e3b541cfc161f4f0d63e2a66d568f090065bc3d3)
 `50%` of new lines are covered (`83.33%` of the complete file).
 Missing lines: `5`
 
-### codebase/other.py
+### [codebase/other.py](https://github.com/org/repo/pull/12/files#diff-30cad827f61772ec66bb9ef8887058e6d8443a2afedb331d800feaa60228a26e)
 `100%` of new lines are covered (`100%` of the complete file).
 
 </details>
@@ -188,6 +194,8 @@ def test_template__no_new_lines_with_coverage(coverage_obj):
         diff_coverage=diff_cov,
         previous_coverage_rate=decimal.Decimal("1.0"),
         marker="<!-- foo -->",
+        repo_name="org/repo",
+        pr_number=1,
         base_template=template.read_template_file("comment.md.j2"),
     )
     expected = """## Coverage report
@@ -207,6 +215,8 @@ def test_template__no_branch_no_previous(coverage_obj_no_branch, diff_coverage_o
         diff_coverage=diff_coverage_obj,
         previous_coverage_rate=None,
         marker="<!-- foo -->",
+        repo_name="org/repo",
+        pr_number=3,
         base_template=template.read_template_file("comment.md.j2"),
     )
     expected = """## Coverage report
@@ -220,7 +230,7 @@ The coverage rate is `75%`.
 <details>
 <summary>Diff Coverage details (click to unfold)</summary>
 
-### codebase/code.py
+### [codebase/code.py](https://github.com/org/repo/pull/3/files#diff-c05d5557f0c1ff3761df2f49e3b541cfc161f4f0d63e2a66d568f090065bc3d3)
 `80%` of new lines are covered (`75%` of the complete file).
 Missing lines: `7`, `9`
 
@@ -241,6 +251,8 @@ def test_template__no_marker(coverage_obj, diff_coverage_obj):
             coverage=coverage_obj,
             diff_coverage=diff_coverage_obj,
             previous_coverage_rate=decimal.Decimal("0.92"),
+            repo_name="org/repo",
+            pr_number=1,
             base_template=template.read_template_file("comment.md.j2"),
             marker="<!-- foo -->",
             custom_template="""foo bar""",
@@ -253,6 +265,8 @@ def test_template__broken_template(coverage_obj, diff_coverage_obj):
             coverage=coverage_obj,
             diff_coverage=diff_coverage_obj,
             previous_coverage_rate=decimal.Decimal("0.92"),
+            repo_name="org/repo",
+            pr_number=1,
             base_template=template.read_template_file("comment.md.j2"),
             marker="<!-- foo -->",
             custom_template="""{% extends "foo" %}""",
@@ -272,6 +286,33 @@ def test_template__broken_template(coverage_obj, diff_coverage_obj):
 )
 def test_pct(value, displayed_coverage):
     assert template.pct(decimal.Decimal(value)) == displayed_coverage
+
+
+@pytest.mark.parametrize(
+    "filepath, lines, result",
+    [
+        (
+            pathlib.Path("tests/conftest.py"),
+            None,
+            "https://github.com/py-cov-action/python-coverage-comment-action/pull/33/files#diff-e52e4ddd58b7ef887ab03c04116e676f6280b824ab7469d5d3080e5cba4f2128",
+        ),
+        (
+            pathlib.Path("main.py"),
+            (12, 15),
+            "https://github.com/py-cov-action/python-coverage-comment-action/pull/33/files#diff-b10564ab7d2c520cdd0243874879fb0a782862c3c902ab535faabe57d5a505e1R12-R15",
+        ),
+        (
+            pathlib.Path("codebase/main.py"),
+            (22, 22),
+            "https://github.com/py-cov-action/python-coverage-comment-action/pull/33/files#diff-78013e21ec15af196dec6bfa8fd19ba3f6be7d390545d0cff142e47d803316faR22-R22",
+        ),
+    ],
+)
+def test_get_file_url_function(filepath, lines, result):
+    file_url = template.get_file_url_function(
+        "py-cov-action/python-coverage-comment-action", 33
+    )
+    assert file_url(pathlib.Path(filepath), lines) == result
 
 
 def test_uptodate():

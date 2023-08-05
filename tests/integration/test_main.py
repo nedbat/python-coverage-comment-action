@@ -145,7 +145,7 @@ def test_action__pull_request__store_comment(
     assert "The coverage rate is `77.77%`" in comment
     assert "`75%` of new lines are covered." in comment
     assert (
-        "### foo.py\n`75%` of new lines are covered (`77.77%` of the complete file)"
+        "### [foo.py](https://github.com/py-cov-action/foobar/pull/2/files#diff-b08fd7a517303ab07cfa211f74d03c1a4c2e64b3b0656d84ff32ecb449b785d2)\n`75%` of new lines are covered (`77.77%` of the complete file)"
         in comment
     )
     assert (

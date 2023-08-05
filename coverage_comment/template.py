@@ -1,4 +1,6 @@
 import decimal
+import hashlib
+import pathlib
 from collections.abc import Callable
 from importlib import resources
 
@@ -49,6 +51,8 @@ def get_comment_markdown(
     coverage: coverage_module.Coverage,
     diff_coverage: coverage_module.DiffCoverage,
     previous_coverage_rate: decimal.Decimal | None,
+    repo_name: str,
+    pr_number: int,
     base_template: str,
     marker: str,
     subproject_id: str | None = None,
@@ -57,6 +61,9 @@ def get_comment_markdown(
     loader = CommentLoader(base_template=base_template, custom_template=custom_template)
     env = SandboxedEnvironment(loader=loader)
     env.filters["pct"] = pct
+    env.filters["file_url"] = get_file_url_function(
+        repo_name=repo_name, pr_number=pr_number
+    )
 
     try:
         comment = env.get_template("custom" if custom_template else "base").render(
@@ -133,3 +140,20 @@ def pct(val: decimal.Decimal | float) -> str:
         return f"{val.quantize(decimal.Decimal('0.01'), rounding=decimal.ROUND_DOWN).normalize():f}%"
     else:
         return f"{val:.0%}"
+
+
+def get_file_url_function(repo_name: str, pr_number: int) -> Callable:
+    def _(
+        filename: pathlib.Path,
+        lines: tuple[int, int] | None = None,
+    ) -> str:
+        # To link to a file in a PR, GitHub uses the link to the file overview combined with a SHA256 hash of the file path
+        s = f"https://github.com/{repo_name}/pull/{pr_number}/files#diff-{hashlib.sha256(str(filename).encode('utf-8')).hexdigest()}"
+
+        if lines is not None:
+            # R stands for Right side of the diff. But since we generate these links for new code we only need the right side.
+            s += f"R{lines[0]}-R{lines[1]}"
+
+        return s
+
+    return _
