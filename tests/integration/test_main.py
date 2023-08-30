@@ -141,9 +141,8 @@ def test_action__pull_request__store_comment(
     comment_file = pathlib.Path("python-coverage-comment-action.txt").read_text()
     assert comment == comment_file
     assert comment == summary_file.read_text()
-    assert "No coverage data of the default branch was found for comparison" in comment
-    assert "The coverage rate is `77.77%`" in comment
-    assert "`75%` of new lines are covered." in comment
+    assert "Coverage for the whole project went from unknown to 77.77%" in comment
+    assert "75% of the code lines added by this PR are covered" in comment
     assert (
         "### [foo.py](https://github.com/py-cov-action/foobar/pull/2/files#diff-b08fd7a517303ab07cfa211f74d03c1a4c2e64b3b0656d84ff32ecb449b785d2)\n`75%` of new lines are covered (`77.77%` of the complete file)"
         in comment
@@ -202,7 +201,9 @@ def test_action__pull_request__post_comment(
     assert result == 0
 
     assert not pathlib.Path("python-coverage-comment-action.txt").exists()
-    assert "The coverage rate went from `30%` to `77.77%` :arrow_up:" in comment
+    assert "Coverage for the whole project went from 30% to 77.77%" in comment
+    assert comment.count("<img") == 2
+    assert "Branch coverage for the whole project" not in comment
     assert comment == summary_file.read_text()
 
     expected_output = "COMMENT_FILE_WRITTEN=false\n"

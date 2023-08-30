@@ -13,6 +13,8 @@ def test_get_comment_markdown(coverage_obj, diff_coverage_obj):
             coverage=coverage_obj,
             diff_coverage=diff_coverage_obj,
             previous_coverage_rate=decimal.Decimal("0.92"),
+            minimum_green=decimal.Decimal("100"),
+            minimum_orange=decimal.Decimal("70"),
             marker="<!-- foo -->",
             repo_name="org/repo",
             pr_number=1,
@@ -47,6 +49,8 @@ def test_template(coverage_obj, diff_coverage_obj):
         coverage=coverage_obj,
         diff_coverage=diff_coverage_obj,
         previous_coverage_rate=decimal.Decimal("0.92"),
+        minimum_green=decimal.Decimal("79"),
+        minimum_orange=decimal.Decimal("40"),
         repo_name="org/repo",
         pr_number=5,
         base_template=template.read_template_file("comment.md.j2"),
@@ -57,10 +61,11 @@ def test_template(coverage_obj, diff_coverage_obj):
         """,
     )
     expected = """## Coverage report (foo)
-The coverage rate went from `92%` to `75%` :sob:
-The branch rate is `50%`.
-
-`80%` of new lines are covered.
+<span>
+<img title="Coverage for the whole project went from 92% to 75%" alt="Coverage for the whole project went from 92% to 75%" src="https://img.shields.io/badge/Coverage%20evolution-92%25%20%3E%2075%25-orange.svg">
+<img title="80% of the code lines added by this PR are covered" alt="80% of the code lines added by this PR are covered" src="https://img.shields.io/badge/PR%20Coverage-80%25-brightgreen.svg">
+<img title="Branch coverage for the whole project on this PR is 50%. A branch is a possible way to traverse the code. For example, each if statement adds 2 branches to the code." alt="Branch coverage for the whole project on this PR is 50%" src="https://img.shields.io/badge/Branch%20Coverage-50%25-orange.svg">
+</span>
 
 <details>
 <summary>Diff Coverage details (click to unfold)</summary>
@@ -154,16 +159,19 @@ def test_template_full():
         coverage=cov,
         diff_coverage=diff_cov,
         previous_coverage_rate=decimal.Decimal("1.0"),
+        minimum_green=decimal.Decimal("100"),
+        minimum_orange=decimal.Decimal("70"),
         marker="<!-- foo -->",
         repo_name="org/repo",
         pr_number=12,
         base_template=template.read_template_file("comment.md.j2"),
     )
     expected = """## Coverage report
-The coverage rate went from `100%` to `100%` :arrow_right:
-The branch rate is `100%`.
-
-`100%` of new lines are covered.
+<span>
+<img title="Coverage for the whole project went from 100% to 100%" alt="Coverage for the whole project went from 100% to 100%" src="https://img.shields.io/badge/Coverage%20evolution-100%25%20%3E%20100%25-blue.svg">
+<img title="100% of the code lines added by this PR are covered" alt="100% of the code lines added by this PR are covered" src="https://img.shields.io/badge/PR%20Coverage-100%25-brightgreen.svg">
+<img title="Branch coverage for the whole project on this PR is 100%. A branch is a possible way to traverse the code. For example, each if statement adds 2 branches to the code." alt="Branch coverage for the whole project on this PR is 100%" src="https://img.shields.io/badge/Branch%20Coverage-100%25-brightgreen.svg">
+</span>
 
 <details>
 <summary>Diff Coverage details (click to unfold)</summary>
@@ -193,16 +201,19 @@ def test_template__no_new_lines_with_coverage(coverage_obj):
         coverage=coverage_obj,
         diff_coverage=diff_cov,
         previous_coverage_rate=decimal.Decimal("1.0"),
+        minimum_green=decimal.Decimal("100"),
+        minimum_orange=decimal.Decimal("70"),
         marker="<!-- foo -->",
         repo_name="org/repo",
         pr_number=1,
         base_template=template.read_template_file("comment.md.j2"),
     )
     expected = """## Coverage report
-The coverage rate went from `100%` to `75%` :arrow_down:
-The branch rate is `50%`.
-
-_None of the new lines are part of the tested code. Therefore, there is no coverage data about them._
+<span>
+<img title="Coverage for the whole project went from 100% to 75%" alt="Coverage for the whole project went from 100% to 75%" src="https://img.shields.io/badge/Coverage%20evolution-100%25%20%3E%2075%25-orange.svg">
+<img title="100% of the code lines added by this PR are covered" alt="100% of the code lines added by this PR are covered" src="https://img.shields.io/badge/PR%20Coverage-100%25-brightgreen.svg">
+<img title="Branch coverage for the whole project on this PR is 50%. A branch is a possible way to traverse the code. For example, each if statement adds 2 branches to the code." alt="Branch coverage for the whole project on this PR is 50%" src="https://img.shields.io/badge/Branch%20Coverage-50%25-red.svg">
+</span>
 
 
 <!-- foo -->"""
@@ -214,18 +225,18 @@ def test_template__no_branch_no_previous(coverage_obj_no_branch, diff_coverage_o
         coverage=coverage_obj_no_branch,
         diff_coverage=diff_coverage_obj,
         previous_coverage_rate=None,
+        minimum_green=decimal.Decimal("100"),
+        minimum_orange=decimal.Decimal("70"),
         marker="<!-- foo -->",
         repo_name="org/repo",
         pr_number=3,
         base_template=template.read_template_file("comment.md.j2"),
     )
     expected = """## Coverage report
-> **Note**
-> No coverage data of the default branch was found for comparison. A possible reason for this is that the coverage action has not yet run after a push event and the data is therefore not yet initialized.
-
-The coverage rate is `75%`.
-
-`80%` of new lines are covered.
+<span>
+<img title="Coverage for the whole project went from unknown to 75%" alt="Coverage for the whole project went from unknown to 75%" src="https://img.shields.io/badge/Coverage%20evolution-%3F%20%3E%2075%25-brightgreen.svg">
+<img title="80% of the code lines added by this PR are covered" alt="80% of the code lines added by this PR are covered" src="https://img.shields.io/badge/PR%20Coverage-80%25-orange.svg">
+</span>
 
 <details>
 <summary>Diff Coverage details (click to unfold)</summary>
@@ -251,6 +262,8 @@ def test_template__no_marker(coverage_obj, diff_coverage_obj):
             coverage=coverage_obj,
             diff_coverage=diff_coverage_obj,
             previous_coverage_rate=decimal.Decimal("0.92"),
+            minimum_green=decimal.Decimal("100"),
+            minimum_orange=decimal.Decimal("70"),
             repo_name="org/repo",
             pr_number=1,
             base_template=template.read_template_file("comment.md.j2"),
@@ -265,6 +278,8 @@ def test_template__broken_template(coverage_obj, diff_coverage_obj):
             coverage=coverage_obj,
             diff_coverage=diff_coverage_obj,
             previous_coverage_rate=decimal.Decimal("0.92"),
+            minimum_green=decimal.Decimal("100"),
+            minimum_orange=decimal.Decimal("70"),
             repo_name="org/repo",
             pr_number=1,
             base_template=template.read_template_file("comment.md.j2"),

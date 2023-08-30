@@ -23,6 +23,18 @@ def get_badge_color(
         return "red"
 
 
+def get_evolution_badge_color(
+    rate_before: decimal.Decimal | None,
+    rate_after: decimal.Decimal,
+) -> str:
+    if rate_before is None or rate_after > rate_before:
+        return "brightgreen"
+    elif rate_after == rate_before:
+        return "blue"
+    else:
+        return "orange"
+
+
 def compute_badge_endpoint_data(
     line_rate: decimal.Decimal,
     color: str,
@@ -50,6 +62,12 @@ def compute_badge_image(
             }
         )
     ).text
+
+
+def get_static_badge_url(label: str, message: str, color: str) -> str:
+    return "https://img.shields.io/badge/" + urllib.parse.quote(
+        f"{label}-{message}-{color}.svg"
+    )
 
 
 def get_endpoint_url(endpoint_url: str) -> str:

@@ -132,6 +132,8 @@ def generate_comment(
             coverage=coverage,
             diff_coverage=diff_coverage,
             previous_coverage_rate=previous_coverage,
+            minimum_green=config.MINIMUM_GREEN,
+            minimum_orange=config.MINIMUM_ORANGE,
             repo_name=config.GITHUB_REPOSITORY,
             pr_number=config.GITHUB_PR_NUMBER,
             base_template=template.read_template_file("comment.md.j2"),

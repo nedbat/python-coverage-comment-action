@@ -1,46 +1,22 @@
 {% block title %}## Coverage report{% if subproject_id %} ({{ subproject_id  }}){% endif %}{% endblock title %}
-{% block coverage_evolution -%}
-{% if previous_coverage_rate -%}
-{% block coverage_evolution_wording -%}
-The coverage rate went from `{{ previous_coverage_rate | pct }}` to `{{ coverage.info.percent_covered | pct }}`{{" "}}
-{%- endblock coverage_evolution_wording %}
-{%- block emoji_coverage -%}
-{%- if previous_coverage_rate | float < coverage.info.percent_covered | float -%}
-{%- block emoji_coverage_up -%}:arrow_up:{%- endblock emoji_coverage_up -%}
-{%- elif previous_coverage_rate | float > coverage.info.percent_covered | float -%}
-{%- block emoji_coverage_down -%}:arrow_down:{%- endblock emoji_coverage_down -%}
-{%- else -%}
-{%- block emoji_coverage_constant -%}:arrow_right:{%- endblock emoji_coverage_constant -%}
-{%- endif %}
-{%- endblock emoji_coverage -%}
-{%- else -%}
-{% block no_comparison_info -%}
-> **Note**
-> No coverage data of the default branch was found for comparison. A possible reason for this is that the coverage action has not yet run after a push event and the data is therefore not yet initialized.
-{%- endblock no_comparison_info %}
-
-{% block coverage_value_wording -%}
-The coverage rate is `{{ coverage.info.percent_covered | pct }}`.
-{%- endblock coverage_value_wording %}
-{%- endif %}
-{%- endblock coverage_evolution %}
-{% block branch_coverage -%}
+{% block coverage_badges -%}
+<span>
+{% block coverage_evolution_badge -%}
+{% set text = "Coverage for the whole project went from " + ("unknown" if previous_coverage_rate == None else previous_coverage_rate | pct) + " to " + coverage.info.percent_covered | pct -%}
+<img title="{{ text }}" alt="{{ text }}" src="{{ 'Coverage evolution' | generate_badge(message=('?' if previous_coverage_rate == None else previous_coverage_rate | pct) + ' > ' + coverage.info.percent_covered | pct, color=previous_coverage_rate | get_evolution_color(coverage.info.percent_covered)) }}">
+{% endblock coverage_evolution_badge -%}
+{% block pr_coverage_badge -%}
+{% set text = diff_coverage.total_percent_covered | pct + " of the code lines added by this PR are covered"  -%}
+<img title="{{ text }}" alt="{{ text }}" src="{{ 'PR Coverage' | generate_badge(message=diff_coverage.total_percent_covered | pct, color=diff_coverage.total_percent_covered | get_badge_color) }}">
+{% endblock pr_coverage_badge -%}
+{% block branch_coverage_badge -%}
 {% if coverage.meta.branch_coverage and coverage.info.num_branches -%}
-{% block branch_coverage_wording -%}
-The branch rate is `{{ (coverage.info.covered_branches / coverage.info.num_branches) | pct }}`.
-{% endblock branch_coverage_wording -%}
-{%- endif %}
-{% endblock branch_coverage -%}
-
-{%- if diff_coverage.total_num_lines > 0 -%}
-{% block diff_coverage_wording -%}
-`{{ diff_coverage.total_percent_covered | pct }}` of new lines are covered.
-{%- endblock diff_coverage_wording %}
-{%- else -%}
-{% block diff_coverage_empty_wording -%}
-_None of the new lines are part of the tested code. Therefore, there is no coverage data about them._
-{%- endblock diff_coverage_empty_wording %}
-{%- endif %}
+{% set text = "Branch coverage for the whole project on this PR is " + (coverage.info.covered_branches / coverage.info.num_branches) | pct -%}
+<img title="{{ text }}. A branch is a possible way to traverse the code. For example, each if statement adds 2 branches to the code." alt="{{ text }}" src="{{ 'Branch Coverage' | generate_badge(message=(coverage.info.covered_branches / coverage.info.num_branches) | pct, color=(coverage.info.covered_branches / coverage.info.num_branches) | get_badge_color) }}">
+{% endif -%}
+{% endblock branch_coverage_badge -%}
+</span>
+{%- endblock coverage_badges %}
 
 {% block coverage_by_file -%}
 {%if diff_coverage.files -%}

@@ -7,6 +7,7 @@ from importlib import resources
 import jinja2
 from jinja2.sandbox import SandboxedEnvironment
 
+from coverage_comment import badge
 from coverage_comment import coverage as coverage_module
 
 MARKER = (
@@ -51,6 +52,8 @@ def get_comment_markdown(
     coverage: coverage_module.Coverage,
     diff_coverage: coverage_module.DiffCoverage,
     previous_coverage_rate: decimal.Decimal | None,
+    minimum_green: decimal.Decimal,
+    minimum_orange: decimal.Decimal,
     repo_name: str,
     pr_number: int,
     base_template: str,
@@ -64,6 +67,13 @@ def get_comment_markdown(
     env.filters["file_url"] = get_file_url_function(
         repo_name=repo_name, pr_number=pr_number
     )
+    env.filters["get_badge_color"] = lambda r: badge.get_badge_color(
+        decimal.Decimal(r) * decimal.Decimal("100"),
+        minimum_green=minimum_green,
+        minimum_orange=minimum_orange,
+    )
+    env.filters["get_evolution_color"] = badge.get_evolution_badge_color
+    env.filters["generate_badge"] = badge.get_static_badge_url
 
     try:
         comment = env.get_template("custom" if custom_template else "base").render(

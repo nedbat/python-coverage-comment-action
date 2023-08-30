@@ -22,6 +22,23 @@ def test_get_badge_color(rate, expected):
     assert color == expected
 
 
+@pytest.mark.parametrize(
+    "rate1, rate2, expected",
+    [
+        (decimal.Decimal("70"), decimal.Decimal("80"), "brightgreen"),
+        (None, decimal.Decimal("10"), "brightgreen"),
+        (decimal.Decimal("85"), decimal.Decimal("85"), "blue"),
+        (decimal.Decimal("80"), decimal.Decimal("70"), "orange"),
+    ],
+)
+def test_get_evolution_badge_color(rate1, rate2, expected):
+    color = badge.get_evolution_badge_color(
+        rate_before=rate1,
+        rate_after=rate2,
+    )
+    assert color == expected
+
+
 def test_compute_badge_endpoint_data():
     badge_data = badge.compute_badge_endpoint_data(
         line_rate=decimal.Decimal("27.42"), color="red"
@@ -40,6 +57,13 @@ def test_compute_badge_image(session):
     )
 
     assert badge_data == "foo"
+
+
+def test_get_static_badge_url():
+    assert (
+        badge.get_static_badge_url(label="Label", message="100% > 99%", color="green")
+        == "https://img.shields.io/badge/Label-100%25%20%3E%2099%25-green.svg"
+    )
 
 
 def test_get_endpoint_url():
